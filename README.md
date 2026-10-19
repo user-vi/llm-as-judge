@@ -4,7 +4,6 @@
 
 ## Установка
 
-**Python 3.12** 
 ```bash
 uv sync
 source .venv/bin/activate
