@@ -15,7 +15,7 @@ source .venv/bin/activate
 ### Запуск основного скрипта
 
 ```
-python src/main.py --mode <нужный_режим>
+bash run.sh
 ```
 
 Итоговый оптимизированный промпт сохраняется в `prompts/<таймстамп>__prompt_<mode>.md`.
