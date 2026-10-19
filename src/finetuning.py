@@ -34,6 +34,7 @@ class OptimizationSignature(dspy.Signature):
 
 
 class PromptOptimizerBase(dspy.Module):
+	"""Инъекция для типовых классификаторов с различными инит промтами"""
     # student = PromptOptimizerRecipientBase(new_doc=receiver_nknh)
     def __init__(self, docstring):
         super().__init__()
@@ -93,11 +94,6 @@ def judge_metric_bin(gold, pred, trace=None, pred_name=None, pred_trace=None):
     log.info(f"============expected: {expected}")
     log.info(f"============score: {score}")
 
-    # для GEPA-мутаций — текстовая обратная связь через reasoning judge-а
-    # feedback = res.reasoning or (
-    #     f"Ожидаемый ответ '{expected}' "
-    #     f"Модель ответила '{actual}'."
-    # )
     feedback = (
         f"expected '{expected}'. "
         f"actual '{actual}'. Промпт должен быть на русском языке. Не используй эмодзи."
@@ -142,69 +138,7 @@ def judge_metric_float(gold, pred, trace=None, pred_name=None, pred_trace=None):
     return dspy.Prediction(score=float(score), feedback=feedback)
 
 
-def _unescape(text: str) -> str:
-    """
-    Преобразует литеральные последовательности \n, \t, \u0410 … в реальные символы.
-    Делается только при наличии обратного слеша, чтобы не «сломать» уже нормальный текст.
-    """
-    return codecs.decode(text, "unicode_escape") if "\\" in text else text
-
-
-def _fix_mojibake(txt: str) -> str:
-    """
-    Если строка выглядит как mojibake (UTF‑8‑байты, интерпретированные как CP1251
-    или KOI8‑R), возвращаем правильный русский.
-    """
-    # Признак mojibake – наличие символов типа Ð, Ñ, Â …
-    if any(ch in txt for ch in ("Ð", "Ñ", "Â")):
-        try:
-            # CP1251 → UTF‑8
-            return txt.encode("latin1").decode("utf-8")
-        except UnicodeDecodeError:
-            # иногда используется KOI8‑R
-            return txt.encode("latin1").decode("koi8-r")
-    return txt
-
-
-def save_prompt(raw: Any, filename: str) -> None:
-    """
-    Сохраняет в *filename* поле «instruction», при необходимости
-    - разбирает JSON,
-    - разворачивает escape‑последовательности,
-    - исправляет mojibake.
-    Файл открывается в UTF‑8, поэтому в нём будет чистый русский текст.
-    """
-    # -------------------------------------------------
-    # 1️⃣ Берём строку‑инструкцию
-    # -------------------------------------------------
-    if isinstance(raw, dict):
-        instr = raw.get("instruction", "")
-    elif isinstance(raw, str):
-        s = raw.strip()
-        try:
-            obj = json.loads(s)
-        except json.JSONDecodeError:
-            obj = None
-
-        if isinstance(obj, dict):
-            instr = obj.get("instruction", s)  # если поля нет – берём весь текст
-        else:
-            instr = s
-    else:
-        instr = str(raw)
-
-    # -------------------------------------------------
-    # 2️⃣ Очищаем строку
-    # -------------------------------------------------
-    if isinstance(instr, str):
-        cleaned = _unescape(instr)  # \n, \uXXXX → реальные символы
-        cleaned = _fix_mojibake(cleaned)  # поправка mojibake, если нужна
-    else:
-        cleaned = str(instr)
-
-    # -------------------------------------------------
-    # 3️⃣ Записываем в файл (UTF‑8)
-    # -------------------------------------------------
+def save_prompt(raw: str, filename: str) -> None:
     with open(filename, "w", encoding="utf-8") as f:
-        f.write(cleaned)
+        f.write(raw)
 
