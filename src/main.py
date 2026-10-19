@@ -16,7 +16,7 @@ from src.mask_data import mask_data
 from src.prompt import Prompts
 
 
-litellm.ssl_verify = False
+litellm.ssl_verify = False  # ignore certificate
 
 log = setup_dspy_logger(log_file="gepa.log")
 log.info("GEPA compile started")
