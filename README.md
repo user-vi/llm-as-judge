@@ -12,38 +12,11 @@ source .venv/bin/activate
 
 ## Запуск
 
-### Проверка доступности LLM
-
-Перед запуском основного скрипта проверить, что LLM-модель доступна. Запустить [`src/llm_test.ipynb`](src/llm_test.ipynb). 
- * Модель доступна только из dev-контура
- * Модель могут заменить
-
-
 ### Запуск основного скрипта
 
 ```
 python src/main.py --mode <нужный_режим>
 ```
-
-#### Возможные значения `--mode`
-
-Флаг `--mode` обязательный — задаёт сценарий классификации. Поддерживаются следующие значения:
-
-| Режим | Фильтр | Датасет | Метрика |
-|---|---|---|---|
-| `recipient_kos` | `kos@kos.sibur.ru` | `data/eval_data__recipient.xlsx` | `judge_metric_float` |
-| `recipient_nknh` | `nknh@sibur.ru` | `data/eval_data__recipient.xlsx` | `judge_metric_float` |
-| `recipient_mos` | `info@sibur.ru` | `data/eval_data__recipient.xlsx` | `judge_metric_float` |
-| `forward_kos` | `kos@kos.sibur.ru` | `data/eval_data__forward.xlsx` | `judge_metric_bin` |
-| `forward_nknh` | `nknh@sibur.ru` | `data/eval_data__forward.xlsx` | `judge_metric_bin` |
-| `forward_mos` | `info@sibur.ru` | `data/eval_data__forward.xlsx` | `judge_metric_bin` |
-| `kis_kos` | `kos@kos.sibur.ru` | `data/eval_data__is_kisecm.xlsx` | `judge_metric_bin` |
-| `kis_nknh` | `nknh@sibur.ru` | `data/eval_data__is_kisecm.xlsx` | `judge_metric_bin` |
-| `kis_mos` | `info@sibur.ru` | `data/eval_data__is_kisecm.xlsx` | `judge_metric_bin` |
-| `isGD` | без фильтра | `data/eval_data__isGD.xlsx` | `judge_metric_bin` |
-| `deadline` | без фильтра | `data/eval_data__deadline.xlsx` | `judge_metric_bin` |
-| `sender` | без фильтра | `data/eval_data__sender.xlsx` | `judge_metric_bin` |
-
 
 Итоговый оптимизированный промпт сохраняется в `prompts/<таймстамп>__prompt_<mode>.md`.
 
@@ -62,12 +35,6 @@ bash ./best_score.sh
 ```
 n8n-pochta/
 ├── data/
-│   ├── eval_data__recipient.xlsx      # разметка для recipient_kos, recipient_nknh, recipient_mos
-│   ├── eval_data__forward.xlsx        # разметка для forward_kos, forward_nknh, forward_mos
-│   ├── eval_data__is_kisecm.xlsx      # разметка для kis_kos, kis_nknh, kis_mos
-│   ├── eval_data__isGD.xlsx           # разметка для isGD
-│   ├── eval_data__deadline.xlsx       # разметка для deadline
-│   └── eval_data__sender.xlsx         # разметка для sender
 ├── src/
 │   ├── main.py                # основной entry-point (вызывается из run.sh)
 │   ├── finetuning.py          # метрики, PromptOptimizerBase
